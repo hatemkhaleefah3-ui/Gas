@@ -1,0 +1,4 @@
+/client/* /public/client/:splat 200
+/app.js /public/app.js 200
+/styles.css /public/styles.css 200
+/* /index.html 200
