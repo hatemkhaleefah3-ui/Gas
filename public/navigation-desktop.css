@@ -1,0 +1,14 @@
+/* Desktop-only composition: main navigation + utilities share one top bar. */
+@media (min-width:1100px){
+  .app-shell{padding-top:82px!important}
+  .adaptive-utility{height:82px;background:var(--nav-surface);color:#fff;border-bottom:0;box-shadow:0 12px 32px rgba(18,59,50,.18);grid-template-columns:1fr auto 1fr;padding:0 26px;z-index:64}
+  .adaptive-utility .utility-brand{display:none}
+  .adaptive-utility .utility-menu{color:#fff;background:rgba(255,255,255,.08)}
+  .adaptive-utility .utility-menu:hover{background:rgba(255,255,255,.14)}
+  .adaptive-utility .utility-lang,.adaptive-utility .utility-notification{color:#fff;background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.12);box-shadow:none}
+  .adaptive-utility .utility-lang:hover,.adaptive-utility .utility-notification:hover{background:rgba(255,255,255,.14);transform:translateY(-1px)}
+  .adaptive-main-nav{top:0;left:94px;right:150px;height:82px;background:transparent!important;box-shadow:none;z-index:66;padding:10px 8px;pointer-events:auto}
+  .adaptive-main-nav:before{opacity:.7}
+  .adaptive-main-nav.showing-subnav{background:transparent!important}
+  .legacy-topbar{padding-top:30px!important}
+}
