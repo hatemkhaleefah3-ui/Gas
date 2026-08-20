@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0b0f0d" />
+  <meta name="description" content="GAS — a device-native fuel and energy dashboard." />
+  <title>GAS — Energy, reimagined</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="ambient ambient-a" aria-hidden="true"></div>
+  <div class="ambient ambient-b" aria-hidden="true"></div>
+
+  <header class="topbar shell">
+    <a class="brand" href="#overview" aria-label="GAS home">
+      <span class="brand-mark" aria-hidden="true">G</span>
+      <span class="brand-word">GAS</span>
+    </a>
+
+    <nav class="desktop-nav" aria-label="Primary navigation">
+      <button class="nav-button is-active" data-view-target="overview">Overview</button>
+      <button class="nav-button" data-view-target="stations">Stations</button>
+      <button class="nav-button" data-view-target="insights">Insights</button>
+    </nav>
+
+    <div class="status-pill" aria-label="Network status">
+      <span class="status-dot"></span>
+      <span>Live network</span>
+    </div>
+  </header>
+
+  <main class="shell app-shell">
+    <section class="hero" id="overview" data-screen="overview">
+      <div class="hero-copy">
+        <p class="eyebrow">SMART ENERGY NETWORK</p>
+        <h1>Fuel your next <span>move.</span></h1>
+        <p class="hero-lede">Find the best nearby stop, compare live fuel prices, and make every refill feel effortless.</p>
+
+        <div class="fuel-selector" aria-label="Fuel type">
+          <button class="fuel-button is-active" data-fuel="Regular" aria-pressed="true">
+            <span>Regular</span><strong>$3.42</strong>
+          </button>
+          <button class="fuel-button" data-fuel="Premium" aria-pressed="false">
+            <span>Premium</span><strong>$4.08</strong>
+          </button>
+          <button class="fuel-button" data-fuel="Diesel" aria-pressed="false">
+            <span>Diesel</span><strong>$3.91</strong>
+          </button>
+        </div>
+      </div>
+
+      <div class="hero-orbit" aria-label="Current fuel intelligence">
+        <div class="orbit-ring orbit-ring-outer"></div>
+        <div class="orbit-ring orbit-ring-inner"></div>
+        <div class="price-core">
+          <span class="price-label">AREA AVG</span>
+          <strong id="heroPrice">$3.42</strong>
+          <span id="heroFuel">REGULAR / GAL</span>
+          <small><span class="trend-down">↓ 4.2¢</span> today</small>
+        </div>
+        <div class="orbit-chip orbit-chip-a"><span>12</span> stations</div>
+        <div class="orbit-chip orbit-chip-b"><span>6m</span> best ETA</div>
+      </div>
+    </section>
+
+    <section class="screen-panel stations-panel" id="stations" data-screen="stations">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">NEARBY NOW</p>
+          <h2>Stations worth the stop.</h2>
+        </div>
+        <label class="search-box">
+          <span class="sr-only">Search stations</span>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.35-4.35m2.35-5.65a8 8 0 1 1-16 0 8 8 0 0 1 16 0Z"/></svg>
+          <input id="stationSearch" type="search" placeholder="Search station or area" autocomplete="off" />
+        </label>
+      </div>
+
+      <div class="station-grid" id="stationGrid">
+        <article class="station-card featured" data-name="Apex Fuel Downtown" data-area="Downtown" data-regular="3.34" data-premium="3.99" data-diesel="3.82">
+          <div class="station-topline">
+            <div class="station-badge">BEST VALUE</div>
+            <button class="save-button" aria-label="Save Apex Fuel Downtown" aria-pressed="false">☆</button>
+          </div>
+          <div>
+            <p class="station-distance">1.2 mi · 6 min</p>
+            <h3>Apex Fuel</h3>
+            <p class="station-area">Downtown · Open 24h</p>
+          </div>
+          <div class="station-footer">
+            <div><span class="station-fuel-label">Regular</span><strong class="station-price">$3.34</strong></div>
+            <a class="route-button" href="https://www.google.com/maps/search/?api=1&query=33.3152,44.3661" target="_blank" rel="noreferrer">Route ↗</a>
+          </div>
+        </article>
+
+        <article class="station-card" data-name="Northline Energy River District" data-area="River District" data-regular="3.39" data-premium="4.02" data-diesel="3.86">
+          <div class="station-topline">
+            <div class="station-badge neutral">FASTEST</div>
+            <button class="save-button" aria-label="Save Northline Energy" aria-pressed="false">☆</button>
+          </div>
+          <div>
+            <p class="station-distance">1.8 mi · 5 min</p>
+            <h3>Northline Energy</h3>
+            <p class="station-area">River District · Open now</p>
+          </div>
+          <div class="station-footer">
+            <div><span class="station-fuel-label">Regular</span><strong class="station-price">$3.39</strong></div>
+            <a class="route-button" href="https://www.google.com/maps/search/?api=1&query=33.3252,44.3761" target="_blank" rel="noreferrer">Route ↗</a>
+          </div>
+        </article>
+
+        <article class="station-card" data-name="Halo Service East Gate" data-area="East Gate" data-regular="3.47" data-premium="4.11" data-diesel="3.94">
+          <div class="station-topline">
+            <div class="station-badge neutral">TOP RATED</div>
+            <button class="save-button" aria-label="Save Halo Service" aria-pressed="false">☆</button>
+          </div>
+          <div>
+            <p class="station-distance">2.4 mi · 8 min</p>
+            <h3>Halo Service</h3>
+            <p class="station-area">East Gate · 4.9 ★</p>
+          </div>
+          <div class="station-footer">
+            <div><span class="station-fuel-label">Regular</span><strong class="station-price">$3.47</strong></div>
+            <a class="route-button" href="https://www.google.com/maps/search/?api=1&query=33.3052,44.3961" target="_blank" rel="noreferrer">Route ↗</a>
+          </div>
+        </article>
+      </div>
+
+      <p class="empty-state" id="emptyState" hidden>No matching stations. Try a different search.</p>
+    </section>
+
+    <section class="screen-panel insights-panel" id="insights" data-screen="insights">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">YOUR ENERGY PULSE</p>
+          <h2>Small choices. Better miles.</h2>
+        </div>
+      </div>
+
+      <div class="insight-grid">
+        <article class="metric-card metric-large">
+          <span class="metric-label">MONTHLY SAVINGS</span>
+          <strong>$28.60</strong>
+          <p>Saved by choosing below-average stations.</p>
+          <div class="sparkline" aria-hidden="true">
+            <span style="height:36%"></span><span style="height:54%"></span><span style="height:46%"></span><span style="height:72%"></span><span style="height:63%"></span><span style="height:88%"></span><span style="height:78%"></span>
+          </div>
+        </article>
+
+        <article class="metric-card">
+          <span class="metric-label">BEST REFILL WINDOW</span>
+          <strong>7–9 AM</strong>
+          <p>Local prices trend lower before the morning rush.</p>
+        </article>
+
+        <article class="metric-card">
+          <span class="metric-label">RANGE READY</span>
+          <strong>342 mi</strong>
+          <p>Estimated after your next typical refill.</p>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <div class="swipe-rail" aria-label="Swipe navigation">
+    <button class="rail-dot is-active" data-rail-target="0" aria-label="Go to overview"></button>
+    <button class="rail-dot" data-rail-target="1" aria-label="Go to stations"></button>
+    <button class="rail-dot" data-rail-target="2" aria-label="Go to insights"></button>
+    <span>SWIPE</span>
+  </div>
+
+  <nav class="mobile-dock" aria-label="Mobile navigation">
+    <button class="dock-button is-active" data-dock-target="0"><span>◉</span>Pulse</button>
+    <button class="dock-button" data-dock-target="1"><span>⌖</span>Stations</button>
+    <button class="dock-button" data-dock-target="2"><span>⌁</span>Insights</button>
+  </nav>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
