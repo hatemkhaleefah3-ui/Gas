@@ -5,10 +5,13 @@
   .adaptive-utility .utility-brand{display:none}
   .adaptive-utility .utility-menu{color:#fff;background:rgba(255,255,255,.08)}
   .adaptive-utility .utility-menu:hover{background:rgba(255,255,255,.14)}
-  .adaptive-utility .utility-lang,.adaptive-utility .utility-notification{color:#fff;background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.12);box-shadow:none}
-  .adaptive-utility .utility-lang:hover,.adaptive-utility .utility-notification:hover{background:rgba(255,255,255,.14);transform:translateY(-1px)}
-  .adaptive-main-nav{top:0;left:94px;right:150px;height:82px;background:transparent!important;box-shadow:none;z-index:66;padding:10px 8px;pointer-events:auto}
+  .adaptive-utility .utility-course,.adaptive-utility .utility-notification{color:#fff;background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.12);box-shadow:none}
+  .adaptive-utility .utility-course:hover,.adaptive-utility .utility-notification:hover{background:rgba(255,255,255,.14);transform:translateY(-1px)}
+  .adaptive-utility .utility-course-icon{color:#f2c59e}
+  .adaptive-utility .course-chevron{color:rgba(255,255,255,.72)}
+  .adaptive-main-nav{top:0;left:94px;right:335px;height:82px;background:transparent!important;box-shadow:none;z-index:66;padding:10px 8px;pointer-events:auto}
   .adaptive-main-nav:before{opacity:.7}
   .adaptive-main-nav.showing-subnav{background:transparent!important}
   .legacy-topbar{padding-top:30px!important}
+  .course-switcher{color:var(--nav-ink)}
 }
