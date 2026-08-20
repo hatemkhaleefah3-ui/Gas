@@ -4,7 +4,7 @@ const routes = [
   ['/', 'landing', 'public'], ['/sign-in','signin','public-only'], ['/sign-up','signup','public-only'],
   ['/dashboard','dashboard','auth'], ['/subjects','subjects','course'], ['/subjects/:subjectId','subject-detail','course'], ['/subjects/:subjectId/lectures/:lectureId','lecture','course'],
   ['/schedule','schedule','course'], ['/study-rooms','rooms','course'], ['/study-rooms/:roomId','room-detail','course'], ['/community','community','course'], ['/community/:postId','post-detail','course'],
-  ['/work','opportunities','auth'], ['/scholarships','opportunities','auth'], ['/volunteer','opportunities','auth'], ['/opportunities/:opportunityId','opportunity-detail','auth'],
+  ['/work','opportunities','auth'], ['/scholarships','opportunities','auth'], ['/volunteer','opportunities','auth'], ['/opportunities/:opportunityId','opportunity-detail','auth'], ['/donate','donate','auth'],
   ['/courses','courses','auth'], ['/notifications','notifications','auth'], ['/profile','profile','auth'], ['/users/:userId','user-profile','auth'], ['/settings','settings','auth'],
   ['/manager/reports','manager-reports','manager'], ['/manager/students','manager-students','manager'], ['/manager/students/:userId','manager-student','manager'], ['/manager/audit','manager-audit','manager']
 ];
