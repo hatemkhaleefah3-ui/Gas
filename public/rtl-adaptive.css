@@ -1,0 +1,31 @@
+/* Direction-aware adaptive layout */
+[dir="rtl"] body{text-align:right}
+[dir="rtl"] .utility-actions{justify-self:start}
+[dir="rtl"] .utility-menu{justify-self:end}
+[dir="rtl"] .course-switcher{right:auto;left:0;transform-origin:top left}
+[dir="rtl"] .course-option{text-align:right;grid-template-columns:36px 1fr auto}
+[dir="rtl"] .course-option:hover{transform:translateX(2px)}
+[dir="rtl"] .secondary-links a{grid-template-columns:42px 1fr 18px}
+[dir="rtl"] .secondary-links a:hover,[dir="rtl"] .secondary-links a.active{transform:translateX(3px)}
+[dir="rtl"] .drawer-foot,[dir="rtl"] .panel-head,[dir="rtl"] .card-meta,[dir="rtl"] .room-head,[dir="rtl"] .opp-top{direction:rtl}
+[dir="rtl"] .nav-back{margin-right:0;margin-left:8px}
+
+/* Tablet/iPad: rail follows reading origin, drawer opens from opposite edge. */
+@media (min-width:768px) and (max-width:1099px){
+  [dir="rtl"] .app-shell{padding-left:0!important;padding-right:88px!important}
+  [dir="rtl"] .adaptive-utility{left:0!important;right:88px!important}
+  [dir="rtl"] .adaptive-main-nav{left:auto!important;right:0!important;box-shadow:-12px 0 30px rgba(18,59,50,.17)!important}
+  [dir="rtl"] .adaptive-main-nav:before{left:auto!important;right:-70px!important}
+  [dir="rtl"] .adaptive-nav-item.active:after{right:auto!important;left:0!important}
+  [dir="rtl"] .secondary-drawer{right:auto!important;left:0!important;transform:translateX(-108%)!important;box-shadow:28px 0 70px rgba(9,38,32,.2)!important}
+  [dir="rtl"] .sidebar-open .secondary-drawer{transform:translateX(0)!important}
+  [dir="rtl"] .course-switcher{right:auto!important;left:0!important}
+}
+
+/* Mobile retains bottom navigation but mirrors scroll/order naturally. */
+@media (max-width:767px){
+  [dir="rtl"] .adaptive-main-nav.showing-subnav{direction:rtl}
+  [dir="rtl"] .secondary-drawer{right:auto;left:0;transform:translateX(-108%);box-shadow:28px 0 70px rgba(9,38,32,.2)}
+  [dir="rtl"] .sidebar-open .secondary-drawer{transform:translateX(0)}
+  [dir="rtl"] .course-switcher{right:12px;left:12px;transform-origin:top center}
+}

@@ -23,5 +23,10 @@ if (window.__DAFATI_PAGES_PREVIEW__) {
   };
 }
 
-const { createApp } = await import('/client/app.js');
-createApp(document.querySelector('#app'));
+const [{ createApp }, { initAdaptiveNavigation }] = await Promise.all([
+  import('/client/app.js'),
+  import('/client/navigation.js')
+]);
+const root = document.querySelector('#app');
+initAdaptiveNavigation(root);
+await createApp(root);
