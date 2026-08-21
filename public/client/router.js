@@ -2,8 +2,11 @@ import { state } from '/client/state.js';
 
 const routes = [
   ['/', 'landing', 'public'], ['/sign-in','signin','public-only'], ['/sign-up','signup','public-only'],
-  ['/dashboard','dashboard','auth'], ['/subjects','subjects','course'], ['/subjects/:subjectId','subject-detail','course'], ['/subjects/:subjectId/lectures/:lectureId','lecture','course'],
-  ['/schedule','schedule','course'], ['/study-rooms','rooms','course'], ['/study-rooms/:roomId','room-detail','course'], ['/community','community','course'], ['/community/:postId','post-detail','course'],
+  ['/dashboard','dashboard','auth'], ['/dashboard/continue','dashboard-continue','course'], ['/dashboard/upcoming','dashboard-upcoming','course'],
+  ['/subjects','subjects','course'], ['/subjects/progress','subjects-progress','course'], ['/subjects/bookmarked','subjects-bookmarked','course'], ['/subjects/:subjectId','subject-detail','course'], ['/subjects/:subjectId/lectures/:lectureId','lecture','course'],
+  ['/schedule','schedule','course'], ['/schedule/agenda','schedule-agenda','course'], ['/schedule/completed','schedule-completed','course'],
+  ['/study-rooms','rooms','course'], ['/study-rooms/mine','rooms-mine','course'], ['/study-rooms/upcoming','rooms-upcoming','course'], ['/study-rooms/:roomId','room-detail','course'],
+  ['/community','community','course'], ['/community/questions','community-questions','course'], ['/community/resources','community-resources','course'], ['/community/saved','community-saved','course'], ['/community/:postId','post-detail','course'],
   ['/work','opportunities','auth'], ['/scholarships','opportunities','auth'], ['/volunteer','opportunities','auth'], ['/opportunities/:opportunityId','opportunity-detail','auth'], ['/donate','donate','auth'],
   ['/courses','courses','auth'], ['/notifications','notifications','auth'], ['/profile','profile','auth'], ['/users/:userId','user-profile','auth'], ['/settings','settings','auth'],
   ['/manager/reports','manager-reports','manager'], ['/manager/students','manager-students','manager'], ['/manager/students/:userId','manager-student','manager'], ['/manager/audit','manager-audit','manager']
