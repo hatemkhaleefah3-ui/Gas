@@ -2,6 +2,7 @@ import { navigate } from '/client/router.js';
 import { state } from '/client/state.js';
 import { post } from '/client/api.js';
 import { loadSession } from '/client/session.js';
+import { t } from '/client/i18n.js';
 
 const SVG = {
   home:'<path d="M3.5 10.5 12 3.8l8.5 6.7"/><path d="M5.5 9.5v10h13v-10"/><path d="M9.5 19.5v-6h5v6"/>',
@@ -36,115 +37,126 @@ const SVG = {
 };
 
 function icon(name, className='nav-svg') {
-  return `<svg class="${className}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${SVG[name] || SVG.sparkles}</svg>`;
+  return `<svg class="${className}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${SVG[name] || SVG.sparkles}</svg>`;
 }
+const forwardIcon = () => state.language === 'ar' ? 'arrowLeft' : 'arrowRight';
+const backIcon = () => state.language === 'ar' ? 'arrowRight' : 'arrowLeft';
 
 const MAIN = [
-  { key:'home', label:'Home', icon:'home', path:'/dashboard', match:['/dashboard'] },
-  { key:'learn', label:'Learn', icon:'book', path:'/subjects', match:['/subjects'] },
-  { key:'plan', label:'Plan', icon:'calendar', path:'/schedule', match:['/schedule'] },
-  { key:'rooms', label:'Rooms', icon:'users', path:'/study-rooms', match:['/study-rooms'] },
-  { key:'community', label:'Community', icon:'chat', path:'/community', match:['/community'] }
+  { key:'home', labelKey:'home', icon:'home', path:'/dashboard', match:['/dashboard'] },
+  { key:'learn', labelKey:'learn', icon:'book', path:'/subjects', match:['/subjects'] },
+  { key:'plan', labelKey:'plan', icon:'calendar', path:'/schedule', match:['/schedule'] },
+  { key:'rooms', labelKey:'rooms', icon:'users', path:'/study-rooms', match:['/study-rooms'] },
+  { key:'community', labelKey:'community', icon:'chat', path:'/community', match:['/community'] }
 ];
 
 const SUB = {
   home: [
-    { label:'Overview', icon:'grid', action:'top' },
-    { label:'Continue', icon:'arrowUpRight', action:'continue' },
-    { label:'Upcoming', icon:'clock', action:'upcoming' }
+    { labelKey:'overview', icon:'grid', path:'/dashboard' },
+    { labelKey:'continue', icon:'arrowUpRight', path:'/dashboard/continue' },
+    { labelKey:'upcoming', icon:'clock', path:'/dashboard/upcoming' }
   ],
   learn: [
-    { label:'Subjects', icon:'book', path:'/subjects' },
-    { label:'Progress', icon:'chart', action:'progress' },
-    { label:'Bookmarked', icon:'bookmark', action:'bookmarked' }
+    { labelKey:'subjects', icon:'book', path:'/subjects' },
+    { labelKey:'progress', icon:'chart', path:'/subjects/progress' },
+    { labelKey:'bookmarked', icon:'bookmark', path:'/subjects/bookmarked' }
   ],
   plan: [
-    { label:'Week', icon:'calendar', action:'week' },
-    { label:'Agenda', icon:'list', action:'agenda' },
-    { label:'Completed', icon:'checkCircle', action:'completed' }
+    { labelKey:'week', icon:'calendar', path:'/schedule' },
+    { labelKey:'agenda', icon:'list', path:'/schedule/agenda' },
+    { labelKey:'completed', icon:'checkCircle', path:'/schedule/completed' }
   ],
   rooms: [
-    { label:'Discover', icon:'search', path:'/study-rooms' },
-    { label:'My rooms', icon:'users', action:'mine' },
-    { label:'Upcoming', icon:'clock', action:'upcoming-rooms' }
+    { labelKey:'discover', icon:'search', path:'/study-rooms' },
+    { labelKey:'myRooms', icon:'users', path:'/study-rooms/mine' },
+    { labelKey:'upcoming', icon:'clock', path:'/study-rooms/upcoming' }
   ],
   community: [
-    { label:'Feed', icon:'chat', path:'/community' },
-    { label:'Questions', icon:'search', action:'questions' },
-    { label:'Resources', icon:'sparkles', action:'resources' },
-    { label:'Saved', icon:'bookmark', action:'saved' }
+    { labelKey:'feed', icon:'chat', path:'/community' },
+    { labelKey:'questions', icon:'search', path:'/community/questions' },
+    { labelKey:'resources', icon:'sparkles', path:'/community/resources' },
+    { labelKey:'saved', icon:'bookmark', path:'/community/saved' }
   ]
 };
 
 const SECONDARY = [
-  { label:'Work', icon:'briefcase', path:'/work', description:'Jobs & internships' },
-  { label:'Scholarships', icon:'scholarship', path:'/scholarships', description:'Funding opportunities' },
-  { label:'Volunteer', icon:'heart', path:'/volunteer', description:'Give your time' },
-  { label:'Donate', icon:'donate', path:'/donate', description:'Support student access' },
-  { label:'Profile', icon:'user', path:'/profile', description:'Identity & academics' },
-  { label:'Settings', icon:'settings', path:'/settings', description:'Preferences & privacy' }
+  { labelKey:'work', icon:'briefcase', path:'/work', descriptionKey:'nav.workDesc' },
+  { labelKey:'scholarships', icon:'scholarship', path:'/scholarships', descriptionKey:'nav.scholarshipsDesc' },
+  { labelKey:'volunteer', icon:'heart', path:'/volunteer', descriptionKey:'nav.volunteerDesc' },
+  { labelKey:'donate', icon:'donate', path:'/donate', descriptionKey:'nav.donateDesc' },
+  { labelKey:'profile', icon:'user', path:'/profile', descriptionKey:'nav.profileDesc' },
+  { labelKey:'settings', icon:'settings', path:'/settings', descriptionKey:'nav.settingsDesc' }
 ];
 
 let root;
 let observer;
 let frame;
-let activeSubAction = sessionStorage.getItem('dafati.subnav.action') || '';
 
 const escapeHtml = (value='') => String(value).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
 const currentMain = () => MAIN.find(item => item.match.some(prefix => location.pathname.startsWith(prefix))) || null;
 const isSecondaryRoute = () => SECONDARY.some(item => location.pathname.startsWith(item.path)) || location.pathname.startsWith('/manager/') || location.pathname.startsWith('/courses');
 const enrolledCourses = () => state.session.enrollments || [];
 const enrollmentCourseId = enrollment => enrollment.course_id || enrollment.course?.id || enrollment.id;
-const enrollmentName = enrollment => enrollment.course?.[`name_${state.language}`] || enrollment[`name_${state.language}`] || enrollment.course?.name_en || enrollment.name_en || enrollment.course?.name || enrollment.name || 'Course';
+const enrollmentName = enrollment => enrollment.course?.[`name_${state.language}`] || enrollment[`name_${state.language}`] || enrollment.course?.name_en || enrollment.name_en || enrollment.course?.name || enrollment.name || t('courses');
 const activeCourseId = () => state.session.activeCourse?.id || enrolledCourses().find(item => item.active)?.course_id || null;
-const activeCourseName = () => state.session.activeCourse?.[`name_${state.language}`] || state.session.activeCourse?.name_en || state.session.activeCourse?.name || 'Courses';
+const activeCourseName = () => state.session.activeCourse?.[`name_${state.language}`] || state.session.activeCourse?.name_en || state.session.activeCourse?.name || t('courses');
+
+function isPathActive(path) {
+  if(path==='/dashboard') return location.pathname==='/dashboard';
+  if(path==='/subjects') return location.pathname==='/subjects' || /^\/subjects\/[^/]+(?:\/lectures\/[^/]+)?$/.test(location.pathname);
+  if(path==='/schedule') return location.pathname==='/schedule';
+  if(path==='/study-rooms') return location.pathname==='/study-rooms' || /^\/study-rooms\/[^/]+$/.test(location.pathname);
+  if(path==='/community') return location.pathname==='/community' || /^\/community\/[^/]+$/.test(location.pathname);
+  return location.pathname===path;
+}
 
 function navMarkup(section=null) {
   if (section && !isSecondaryRoute()) {
     const items=SUB[section.key]||[];
-    return `<button class="nav-back" data-nav-back aria-label="Back to main navigation" title="Back to main navigation"><span class="nav-icon-wrap">${icon('arrowLeft')}</span><b>${section.label}</b></button>${items.map((item,index)=>`<button class="adaptive-nav-item sub-item ${activeSubAction===(item.action||item.path)||(!activeSubAction&&index===0)?'active':''}" data-sub-action="${escapeHtml(item.action||'')}" data-sub-path="${escapeHtml(item.path||'')}" aria-label="${escapeHtml(item.label)}" title="${escapeHtml(item.label)}"><span class="nav-icon-wrap">${icon(item.icon)}</span><b>${item.label}</b></button>`).join('')}`;
+    const sectionLabel=t(section.labelKey);
+    return `<button class="nav-back" data-nav-back aria-label="${escapeHtml(t('nav.backMain'))}" title="${escapeHtml(t('nav.backMain'))}"><span class="nav-icon-wrap">${icon(backIcon())}</span><b>${escapeHtml(sectionLabel)}</b></button>${items.map(item=>{const label=t(item.labelKey);return `<button class="adaptive-nav-item sub-item ${isPathActive(item.path)?'active':''}" data-sub-path="${escapeHtml(item.path)}" aria-label="${escapeHtml(label)}" title="${escapeHtml(label)}"><span class="nav-icon-wrap">${icon(item.icon)}</span><b>${escapeHtml(label)}</b></button>`;}).join('')}`;
   }
-  return MAIN.map(item=>`<button class="adaptive-nav-item ${location.pathname.startsWith(item.path)?'active':''}" data-main-path="${item.path}" aria-label="${escapeHtml(item.label)}" title="${escapeHtml(item.label)}"><span class="nav-icon-wrap">${icon(item.icon)}</span><b>${item.label}</b></button>`).join('');
+  return MAIN.map(item=>{const label=t(item.labelKey);const active=currentMain()?.key===item.key;return `<button class="adaptive-nav-item ${active?'active':''}" data-main-path="${item.path}" aria-label="${escapeHtml(label)}" title="${escapeHtml(label)}"><span class="nav-icon-wrap">${icon(item.icon)}</span><b>${escapeHtml(label)}</b></button>`;}).join('');
 }
 
 function courseSwitcherMarkup() {
   const activeId=activeCourseId();
   const courses=enrolledCourses();
   return `<div class="course-switch-wrap">
-    <button class="utility-course" data-course-toggle aria-label="Switch course" aria-expanded="false" title="Switch course">
+    <button class="utility-course" data-course-toggle aria-label="${escapeHtml(t('nav.switchCourse'))}" aria-expanded="false" title="${escapeHtml(t('nav.switchCourse'))}">
       <span class="utility-course-icon">${icon('layers')}</span>
       <span class="utility-course-label">${escapeHtml(activeCourseName())}</span>
       <span class="course-chevron">${icon('chevronDown')}</span>
     </button>
     <div class="course-switcher" data-course-menu hidden>
-      <div class="course-switcher-head"><span>Active course</span><b>${escapeHtml(activeCourseName())}</b></div>
+      <div class="course-switcher-head"><span>${t('nav.activeCourse')}</span><b>${escapeHtml(activeCourseName())}</b></div>
       <div class="course-switcher-list">
-        ${courses.length?courses.map((course,index)=>{const id=enrollmentCourseId(course);const active=id===activeId||!!course.active;return `<button class="course-option ${active?'active':''}" data-course-id="${escapeHtml(id||'')}" ${active?'aria-current="true"':''}><span class="course-option-icon">${icon(active?'checkCircle':'book')}</span><span><b>${escapeHtml(enrollmentName(course))}</b><small>${active?'Currently active':`Course ${course.position||index+1}`}</small></span>${active?'<i>Active</i>':''}</button>`;}).join(''):'<div class="course-switcher-empty">No enrolled courses yet.</div>'}
+        ${courses.length?courses.map((course,index)=>{const id=enrollmentCourseId(course);const active=id===activeId||!!course.active;return `<button class="course-option ${active?'active':''}" data-course-id="${escapeHtml(id||'')}" ${active?'aria-current="true"':''}><span class="course-option-icon">${icon(active?'checkCircle':'book')}</span><span><b>${escapeHtml(enrollmentName(course))}</b><small>${active?t('nav.currentlyActive'):t('nav.courseNumber',{n:course.position||index+1})}</small></span>${active?`<i>${t('active')}</i>`:''}</button>`;}).join(''):`<div class="course-switcher-empty">${t('nav.noCourses')}</div>`}
       </div>
-      <a href="/courses" data-course-manage>${icon('settings')}<span>Manage courses</span>${icon('arrowRight')}</a>
+      <a href="/courses" data-course-manage>${icon('settings')}<span>${t('nav.manageCourses')}</span>${icon(forwardIcon())}</a>
     </div>
   </div>`;
 }
 
 function utilityMarkup() {
   return `<div class="adaptive-utility">
-    <button class="utility-menu" data-sidebar-open aria-label="Open secondary navigation" title="Menu">${icon('menu')}</button>
+    <button class="utility-menu" data-sidebar-open aria-label="${escapeHtml(t('nav.openSidebar'))}" title="${escapeHtml(t('menu'))}">${icon('menu')}</button>
     <div class="utility-brand"><span class="brand-mark mini">د</span><b>DAFATI</b></div>
     <div class="utility-actions">
       ${courseSwitcherMarkup()}
-      <button class="utility-notification ${state.notifications.unreadCount?'has-unread':''}" data-nav-notifications aria-label="Notifications" title="Notifications">${icon('bell')}${state.notifications.unreadCount?`<i>${state.notifications.unreadCount}</i>`:''}</button>
+      <button class="utility-notification ${state.notifications.unreadCount?'has-unread':''}" data-nav-notifications aria-label="${escapeHtml(t('nav.notifications'))}" title="${escapeHtml(t('nav.notifications'))}">${icon('bell')}${state.notifications.unreadCount?`<i>${state.notifications.unreadCount}</i>`:''}</button>
     </div>
   </div>`;
 }
 
 function sidebarMarkup() {
   const user=state.session.user||{};
-  const manager=user.role==='MANAGER'?`<div class="drawer-section-label">MANAGER</div><nav class="secondary-links manager-links"><a href="/manager/students" data-secondary-link><span>${icon('users')}</span><div><b>Students</b><small>Administration</small></div><i>${icon('arrowRight')}</i></a><a href="/manager/reports" data-secondary-link><span>${icon('alert')}</span><div><b>Reports</b><small>Moderation queue</small></div><i>${icon('arrowRight')}</i></a><a href="/manager/audit" data-secondary-link><span>${icon('shield')}</span><div><b>Audit</b><small>Privileged activity</small></div><i>${icon('arrowRight')}</i></a></nav>`:'';
-  return `<div class="secondary-scrim" data-sidebar-close></div><aside class="secondary-drawer" aria-label="Secondary navigation" aria-hidden="true">
-    <div class="drawer-head"><div class="brand drawer-brand"><span class="brand-mark">د</span><div><strong>DAFATI</strong><small>Campusly</small></div></div><button class="drawer-close" data-sidebar-close aria-label="Close menu">${icon('close')}</button></div>
-    <div class="drawer-profile"><span class="drawer-avatar">${escapeHtml(user.full_name?.[0]||'S')}</span><div><b>${escapeHtml(user.full_name||'Student')}</b><small>@${escapeHtml(user.username||'student')}</small></div></div>
-    <nav class="secondary-links">${SECONDARY.map(item=>`<a href="${item.path}" data-secondary-link class="${location.pathname.startsWith(item.path)?'active':''}"><span>${icon(item.icon)}</span><div><b>${item.label}</b><small>${item.description}</small></div><i>${icon('arrowRight')}</i></a>`).join('')}</nav>${manager}
-    <div class="drawer-foot"><span>Study with direction.</span><span class="drawer-version">Campusly</span></div>
+  const manager=user.role==='MANAGER'?`<div class="drawer-section-label">${t('manager')}</div><nav class="secondary-links manager-links"><a href="/manager/students" data-secondary-link><span>${icon('users')}</span><div><b>${t('manager.students')}</b><small>${t('nav.studentsDesc')}</small></div><i>${icon(forwardIcon())}</i></a><a href="/manager/reports" data-secondary-link><span>${icon('alert')}</span><div><b>${t('manager.communityReports')}</b><small>${t('nav.reportsDesc')}</small></div><i>${icon(forwardIcon())}</i></a><a href="/manager/audit" data-secondary-link><span>${icon('shield')}</span><div><b>${t('manager.audit')}</b><small>${t('nav.auditDesc')}</small></div><i>${icon(forwardIcon())}</i></a></nav>`:'';
+  return `<div class="secondary-scrim" data-sidebar-close></div><aside class="secondary-drawer" aria-label="${escapeHtml(t('nav.secondary'))}" aria-hidden="true">
+    <div class="drawer-head"><div class="brand drawer-brand"><span class="brand-mark">د</span><div><strong>DAFATI</strong><small>Campusly</small></div></div><button class="drawer-close" data-sidebar-close aria-label="${escapeHtml(t('close'))}">${icon('close')}</button></div>
+    <div class="drawer-profile"><span class="drawer-avatar">${escapeHtml(user.full_name?.[0]||'S')}</span><div><b>${escapeHtml(user.full_name||t('student'))}</b><small>@${escapeHtml(user.username||'student')}</small></div></div>
+    <nav class="secondary-links">${SECONDARY.map(item=>`<a href="${item.path}" data-secondary-link class="${location.pathname.startsWith(item.path)?'active':''}"><span>${icon(item.icon)}</span><div><b>${t(item.labelKey)}</b><small>${t(item.descriptionKey)}</small></div><i>${icon(forwardIcon())}</i></a>`).join('')}</nav>${manager}
+    <div class="drawer-foot"><span>${t('nav.studyDirection')}</span><span class="drawer-version">Campusly</span></div>
   </aside>`;
 }
 
@@ -153,39 +165,9 @@ function closeSidebar(shell){shell.classList.remove('sidebar-open');shell.queryS
 function openCourseMenu(shell){const menu=shell.querySelector('[data-course-menu]');const trigger=shell.querySelector('[data-course-toggle]');if(!menu||!trigger)return;menu.hidden=false;trigger.setAttribute('aria-expanded','true');shell.classList.add('course-menu-open');}
 function closeCourseMenu(shell){const menu=shell.querySelector('[data-course-menu]');const trigger=shell.querySelector('[data-course-toggle]');if(menu)menu.hidden=true;if(trigger)trigger.setAttribute('aria-expanded','false');shell.classList.remove('course-menu-open');}
 function toggleCourseMenu(shell){shell.classList.contains('course-menu-open')?closeCourseMenu(shell):openCourseMenu(shell);}
-function scrollToSelector(selector){root.querySelector(selector)?.scrollIntoView({behavior:'smooth',block:'start'});}
-function filterCards(selector,predicate){root.querySelectorAll(selector).forEach((el,index)=>{const show=predicate(el,index);el.hidden=!show;el.classList.toggle('nav-filtered',!show);});}
-function clearFilters(){filterCards('.subject-card,.schedule-row,.room-card,.post-card',()=>true);root.querySelector('.nav-context-note')?.remove();}
-
-function contextualNote(text){
-  root.querySelector('.nav-context-note')?.remove();
-  const content=root.querySelector('.content');if(!content)return;
-  const note=document.createElement('div');note.className='nav-context-note';note.innerHTML=`<span>${icon('sparkles')}</span><b>${escapeHtml(text)}</b><button data-clear-filter aria-label="Clear filter">${icon('close')}</button>`;content.prepend(note);
-}
-
-function setActiveSub(action){activeSubAction=action||'';if(activeSubAction)sessionStorage.setItem('dafati.subnav.action',activeSubAction);else sessionStorage.removeItem('dafati.subnav.action');root.querySelectorAll('[data-sub-action]').forEach(btn=>btn.classList.toggle('active',btn.dataset.subAction===activeSubAction));}
-
-function applySubAction(action){
-  if(!action)return;clearFilters();setActiveSub(action);
-  switch(action){
-    case 'top':window.scrollTo({top:0,behavior:'smooth'});break;
-    case 'continue':scrollToSelector('.dashboard-grid');break;
-    case 'upcoming':scrollToSelector('.timeline');break;
-    case 'progress':scrollToSelector('.subject-grid');break;
-    case 'bookmarked':filterCards('.subject-card',(_,i)=>i<2);contextualNote('Bookmarked study items');break;
-    case 'week':filterCards('.schedule-row',()=>true);scrollToSelector('.schedule-board');break;
-    case 'agenda':filterCards('.schedule-row',()=>true);scrollToSelector('.schedule-board');break;
-    case 'completed':filterCards('.schedule-row',el=>el.classList.contains('done'));contextualNote('Completed sessions');break;
-    case 'mine':filterCards('.room-card',(_,i)=>i===0);contextualNote('Your study rooms');break;
-    case 'upcoming-rooms':filterCards('.room-card',()=>true);scrollToSelector('.room-grid');break;
-    case 'questions':filterCards('.post-card',el=>/question/i.test(el.textContent));contextualNote('Questions');break;
-    case 'resources':filterCards('.post-card',el=>/resource/i.test(el.textContent));contextualNote('Resources');break;
-    case 'saved':filterCards('.post-card',(_,i)=>i===0);contextualNote('Saved discussions');break;
-  }
-}
 
 function morphToMain(nav){
-  setActiveSub('');nav.classList.add('nav-morphing');setTimeout(()=>{nav.classList.remove('showing-subnav','nav-morphing');nav.setAttribute('aria-label','Main navigation');nav.innerHTML=navMarkup();},160);
+  nav.classList.add('nav-morphing');setTimeout(()=>{nav.classList.remove('showing-subnav','nav-morphing');nav.setAttribute('aria-label',t('menu'));nav.innerHTML=navMarkup();},160);
 }
 
 async function activateCourse(shell, courseId) {
@@ -199,7 +181,7 @@ async function activateCourse(shell, courseId) {
     window.dispatchEvent(new PopStateEvent('popstate'));
   }catch(error){
     option?.classList.remove('switching');
-    const label=option?.querySelector('small');if(label)label.textContent=error.message||'Could not switch course';
+    const label=option?.querySelector('small');if(label)label.textContent=error.message||t('state.error');
   }
 }
 
@@ -214,11 +196,10 @@ function bindShell(shell){
     if(target.matches('[data-course-toggle]')){toggleCourseMenu(shell);return;}
     if(target.matches('[data-course-id]')){await activateCourse(shell,target.dataset.courseId);return;}
     if(target.matches('[data-course-manage]')){event.preventDefault();closeCourseMenu(shell);navigate('/courses');return;}
-    if(target.matches('[data-main-path]')){setActiveSub('');target.classList.add('nav-pressed');setTimeout(()=>navigate(target.dataset.mainPath),100);return;}
+    if(target.matches('[data-main-path]')){target.classList.add('nav-pressed');setTimeout(()=>navigate(target.dataset.mainPath),100);return;}
     if(target.matches('[data-nav-back]')){morphToMain(shell.querySelector('.adaptive-main-nav'));return;}
-    if(target.matches('[data-sub-path]')){const path=target.dataset.subPath;const action=target.dataset.subAction;if(path){setActiveSub(path);if(location.pathname!==path)navigate(path);}else applySubAction(action);return;}
+    if(target.matches('[data-sub-path]')){navigate(target.dataset.subPath);return;}
     if(target.matches('[data-secondary-link]')){event.preventDefault();closeSidebar(shell);setTimeout(()=>navigate(target.getAttribute('href')),160);return;}
-    if(target.matches('[data-clear-filter]')){clearFilters();return;}
   });
   shell.addEventListener('keydown',event=>{if(event.key==='Escape'){if(shell.classList.contains('sidebar-open'))closeSidebar(shell);else closeCourseMenu(shell);}});
 }
@@ -227,9 +208,9 @@ function renderDonationPage(){
   if(location.pathname!=='/donate'||!state.session.user)return;
   const content=root.querySelector('.app-shell .content');if(!content||content.dataset.donateReady==='1')return;
   content.dataset.donateReady='1';
-  const title=root.querySelector('.legacy-topbar h1');if(title)title.textContent='Donate';
-  content.innerHTML=`<section class="donate-hero"><div><span class="badge soft">STUDENT ACCESS</span><h2>Help another student keep learning.</h2><p>DAFATI's donation area is a product surface for future verified support programs. No payment is collected in this preview.</p></div><div class="donate-symbol">${icon('donate','donate-svg')}</div></section><section class="donate-grid"><article class="panel donate-card"><span>01</span><h3>Learning access</h3><p>Support course resources, study materials and learning infrastructure.</p><button class="button" data-donate-preview>Explore program</button></article><article class="panel donate-card"><span>02</span><h3>Student opportunities</h3><p>Help make scholarships and training opportunities easier to reach.</p><button class="button secondary" data-donate-preview>Learn more</button></article><article class="panel donate-card"><span>03</span><h3>Community support</h3><p>Contribute to future verified student-led initiatives and campus programs.</p><button class="button secondary" data-donate-preview>See initiatives</button></article></section><div class="donate-notice"><b>Preview only</b><span>No transaction or payment endpoint exists yet. A real donation feature will require an audited payment provider and a defined financial policy.</span></div>`;
-  content.querySelectorAll('[data-donate-preview]').forEach(btn=>btn.addEventListener('click',()=>{btn.textContent='Coming soon';btn.disabled=true;}));
+  const title=root.querySelector('.legacy-topbar h1');if(title)title.textContent=t('donate');
+  content.innerHTML=`<section class="donate-hero"><div><span class="badge soft">${t('donate.badge')}</span><h2>${t('donate.title')}</h2><p>${t('donate.body')}</p></div><div class="donate-symbol">${icon('donate','donate-svg')}</div></section><section class="donate-grid"><article class="panel donate-card"><span>01</span><h3>${t('donate.learning')}</h3><p>${t('donate.learningBody')}</p><button class="button" data-donate-preview>${t('donate.explore')}</button></article><article class="panel donate-card"><span>02</span><h3>${t('donate.opportunities')}</h3><p>${t('donate.opportunitiesBody')}</p><button class="button secondary" data-donate-preview>${t('donate.learn')}</button></article><article class="panel donate-card"><span>03</span><h3>${t('donate.community')}</h3><p>${t('donate.communityBody')}</p><button class="button secondary" data-donate-preview>${t('donate.initiatives')}</button></article></section><div class="donate-notice"><b>${t('donate.preview')}</b><span>${t('donate.notice')}</span></div>`;
+  content.querySelectorAll('[data-donate-preview]').forEach(btn=>btn.addEventListener('click',()=>{btn.textContent=t('donate.comingSoon');btn.disabled=true;}));
 }
 
 function buildShell(){
@@ -238,10 +219,9 @@ function buildShell(){
   shell.dataset.adaptiveReady='1';shell.querySelector('.sidebar')?.remove();shell.querySelector('.topbar')?.classList.add('legacy-topbar');
   const section=currentMain();
   const utility=document.createElement('div');utility.innerHTML=utilityMarkup();shell.prepend(utility.firstElementChild);
-  const nav=document.createElement('nav');nav.className=`adaptive-main-nav ${section&&!isSecondaryRoute()?'showing-subnav':''}`;nav.setAttribute('aria-label',section&&!isSecondaryRoute()?`${section.label} sub navigation`:'Main navigation');nav.innerHTML=navMarkup(section);shell.append(nav);
+  const nav=document.createElement('nav');nav.className=`adaptive-main-nav ${section&&!isSecondaryRoute()?'showing-subnav':''}`;nav.setAttribute('aria-label',section&&!isSecondaryRoute()?`${t(section.labelKey)} ${t('menu')}`:t('menu'));nav.innerHTML=navMarkup(section);shell.append(nav);
   const layer=document.createElement('div');layer.className='secondary-layer';layer.innerHTML=sidebarMarkup();shell.append(layer);
   bindShell(shell);requestAnimationFrame(()=>shell.classList.add('adaptive-enter'));
-  if(activeSubAction&&section)requestAnimationFrame(()=>applySubAction(activeSubAction));
 }
 
 function enhance(){cancelAnimationFrame(frame);frame=requestAnimationFrame(()=>{buildShell();renderDonationPage();});}
