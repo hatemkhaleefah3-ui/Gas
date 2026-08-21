@@ -23,12 +23,20 @@ if (window.__DAFATI_PAGES_PREVIEW__) {
   };
 }
 
-const [{ createApp }, { initAdaptiveNavigation }, { initPrismExperience }] = await Promise.all([
+const [
+  { createApp },
+  { initAdaptiveNavigation },
+  { initPrismExperience },
+  { initPrismFlowBridge }
+] = await Promise.all([
   import('/client/app.js'),
   import('/client/navigation.js'),
-  import('/client/prism-experience.js')
+  import('/client/prism-experience.js'),
+  import('/client/prism-flow-bridge.js')
 ]);
+
 const root = document.querySelector('#app');
 initAdaptiveNavigation(root);
 initPrismExperience(root);
 await createApp(root);
+initPrismFlowBridge(root);
