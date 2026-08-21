@@ -1,0 +1,15 @@
+/* Final Prism integration polish */
+.adaptive-nav-item .prism-icon,.nav-back .prism-icon{width:21px;height:21px}
+.utility-menu .prism-icon,.utility-notification .prism-icon,.utility-course .prism-icon,.prism-command-trigger .prism-icon{width:21px;height:21px}
+.secondary-links a>span .prism-icon{width:20px;height:20px}.secondary-links a>i .prism-icon{width:16px;height:16px}
+.prism-route-actions button,.prism-command-trigger,.prism-fab,.prism-quick-grid>button,.prism-command-results button{touch-action:manipulation}
+.prism-modal-card .button:disabled{cursor:wait;opacity:.74}
+.prism-modal-card textarea{resize:vertical;min-height:96px}
+.prism-fab{isolation:isolate}.prism-fab .prism-icon{position:relative;z-index:2;width:24px;height:24px}
+.prism-command-empty{padding:28px 18px;text-align:center;color:var(--prism-muted);font-size:12px}
+html[data-density=compact] .prism-route-hero{padding-block:18px}html[data-density=compact] .prism-card{padding:17px}
+[dir=rtl] .prism-command-results i,[dir=rtl] .secondary-links a>i,[dir=rtl] .prism-card footer .prism-icon,[dir=rtl] .prism-opportunity-band>a .prism-icon,[dir=rtl] .prism-resource-list a .prism-icon{transform:scaleX(-1)}
+[dir=rtl] .prism-command-results button,[dir=rtl] .prism-quick-grid>button,[dir=rtl] .prism-modal-card,[dir=rtl] .prism-route-hero{text-align:right}
+[dir=rtl] .prism-command-results i{justify-self:start}
+@media (min-width:768px) and (max-width:1099px){.adaptive-nav-item .prism-icon,.nav-back .prism-icon{width:25px;height:25px}}
+@media (max-width:767px){.adaptive-nav-item .prism-icon,.nav-back .prism-icon{width:24px;height:24px}.prism-modal-card form>footer{position:sticky;bottom:0;background:linear-gradient(transparent,#fbfbfe 22%);padding-top:24px}.prism-route-kicker span:first-child{max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}}
