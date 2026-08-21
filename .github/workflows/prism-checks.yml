@@ -1,0 +1,40 @@
+name: Prism redesign checks
+
+on:
+  push:
+    branches:
+      - feature/prism-device-native-redesign
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Check JavaScript syntax
+        run: |
+          node --check public/app.js
+          node --check public/client/app.js
+          node --check public/client/navigation.js
+          node --check public/client/prism-icons.js
+          node --check public/client/prism-experience.js
+          node --check public/client/prism-flow-bridge.js
+          node --check public/client/router.js
+          node --check worker/index.js
+          node --check worker/router.js
+
+      - name: Run contract and interaction tests
+        run: node --test tests/*.test.js
